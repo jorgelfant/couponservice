@@ -1,78 +1,56 @@
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  labels:
-    name: springboot
-  name: spring-controller
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        name: springboot
-    spec:
-      containers:
-        - image: dockerhandson/spring-boot-mongo
-          name: springboot
-          ports:
-            - name: springboot
-              containerPort: 8080
----
-# Node Port Service
+
 apiVersion: v1
 kind: Service
 metadata:
+  name: docker-mysql
   labels:
-    name: springboot
-  name: springboot
+    app: docker-mysql
 spec:
-  type: NodePort
-  ports:
-    - port: 8080
-      targetPort: 8080
   selector:
-    name: springboot
+    app: docker-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  clusterIP: None
+
 ---
-# Mongo host path rc
-apiVersion: v1
-kind: ReplicationController
+
+apiVersion: apps/v1
+kind: Deployment
 metadata:
+  name: docker-mysql
   labels:
-    name: mongo
-  name: mongo-controller
+    app: docker-mysql
 spec:
-  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-mysql
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
-        name: mongo
+        app: docker-mysql
     spec:
       containers:
-        - image: mongo
-          name: mongo
+        - image: mysql
+          name: docker-mysql
+          env:
+            - name: MYSQL_DATABASE
+              value: mydb
+            - name: MYSQL_ROOT_PASSWORD
+              value: test1234
+            - name: MYSQL_ROOT_HOST
+              value: '%'
           ports:
-            - name: mongo
-              containerPort: 27017
-              hostPort: 27017
+            - containerPort: 3306
+              name: mysql
           volumeMounts:
-            - name: mongo-persistent-storage
-              mountPath: /data/db
+            - name: mysql-initdb-vol
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
-        - name: mongo-persistent-storage
-          hostPath:
-            path: /tmp/dbbackup
----
-# Mongo Node Port RC
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: mongo
-  name: mongo
-spec:
-  type: ClusterIP
-  ports:
-    - port: 27017
-      targetPort: 27017
-  selector:
-    name: mongo
+        - name: mysql-initdb-vol
+          configMap:
+            name: mysql-initdb-config
+
+
