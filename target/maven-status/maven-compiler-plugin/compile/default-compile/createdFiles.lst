@@ -1,5 +1,0 @@
-com\igs\springcloud\controllers\HelloController.class
-com\igs\springcloud\repos\CouponRepo.class
-com\igs\springcloud\CouponserviceApplication.class
-com\igs\springcloud\model\Coupon.class
-com\igs\springcloud\controllers\CouponRestController.class
