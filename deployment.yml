@@ -41,7 +41,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: coupon-app
-          image: bharatht19/couponservice
+          image: jorgelfant/coupon-service
           imagePullPolicy: Always
           ports:
             - containerPort: 9091
